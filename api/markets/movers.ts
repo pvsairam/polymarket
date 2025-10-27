@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await fetch(`${GAMMA_API_BASE}/markets?limit=100&active=true&closed=false`);
     const markets = await response.json();
     
-    const processed = markets.slice(0, 20).map((m: any) => {
+    const processed = markets.map((m: any) => {
       const outcomePricesStr = m.outcomePrices || '["0.5"]';
       const prices = JSON.parse(outcomePricesStr).map((p: string) => parseFloat(p));
       const tokenIdsStr = m.clobTokenIds || '[]';
@@ -50,9 +50,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 function extractCategory(market: any): string {
+  // Use tags first if available
+  if (market.tags && market.tags.length > 0) {
+    return market.tags[0].label;
+  }
+  
   const title = market.question?.toLowerCase() || '';
-  if (title.includes('election') || title.includes('trump') || title.includes('biden')) return 'Politics';
-  if (title.includes('bitcoin') || title.includes('crypto') || title.includes('eth')) return 'Crypto';
-  if (title.includes('sport') || title.includes('nfl') || title.includes('nba')) return 'Sports';
+  
+  if (title.includes('election') || title.includes('president') || title.includes('trump') || title.includes('biden') || title.includes('democrat') || title.includes('republican')) {
+    return 'Politics';
+  }
+  if (title.includes('bitcoin') || title.includes('crypto') || title.includes('ethereum') || title.includes('btc') || title.includes('eth') || title.includes('tether')) {
+    return 'Crypto';
+  }
+  if (title.includes('sport') || title.includes('nfl') || title.includes('nba') || title.includes('soccer') || title.includes('football')) {
+    return 'Sports';
+  }
+  if (title.includes('movie') || title.includes('film') || title.includes('oscar') || title.includes('box office')) {
+    return 'Entertainment';
+  }
+  if (title.includes('ai') || title.includes('artificial intelligence') || title.includes('tech') || title.includes('google') || title.includes('apple')) {
+    return 'Technology';
+  }
+  if (title.includes('economy') || title.includes('fed') || title.includes('rate') || title.includes('gdp') || title.includes('recession')) {
+    return 'Economics';
+  }
+  
   return 'Other';
 }
