@@ -40,8 +40,9 @@ export default function LiquidityLeaderboard({ data }: LiquidityLeaderboardProps
                 type="category"
                 dataKey="market"
                 stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                width={120}
+                fontSize={11}
+                width={200}
+                interval={0}
               />
               <Tooltip
                 contentStyle={{

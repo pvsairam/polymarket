@@ -235,8 +235,8 @@ class PolymarketService {
       .sort((a, b) => b.liquidity - a.liquidity)
       .slice(0, 5)
       .map((market) => ({
-        market: market.title.length > 20 
-          ? market.title.substring(0, 20) + "..." 
+        market: market.title.length > 60 
+          ? market.title.substring(0, 57) + "..." 
           : market.title,
         liquidity: Math.round(market.liquidity / 1000), // Convert to thousands
       }));

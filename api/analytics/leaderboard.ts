@@ -19,10 +19,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const top = markets
       .sort((a: any, b: any) => parseFloat(b.liquidity || '0') - parseFloat(a.liquidity || '0'))
       .slice(0, 5)
-      .map((m: any) => ({
-        market: m.question || 'Untitled',
-        liquidity: parseFloat(m.liquidity || '0'),
-      }));
+      .map((m: any) => {
+        const title = m.question || 'Untitled';
+        return {
+          market: title.length > 60 ? title.substring(0, 57) + '...' : title,
+          liquidity: Math.round(parseFloat(m.liquidity || '0') / 1000),
+        };
+      });
     
     return res.status(200).json(top);
   } catch (error: any) {
