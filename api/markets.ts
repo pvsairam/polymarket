@@ -16,15 +16,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await fetch(`${GAMMA_API_BASE}/markets?limit=100&active=true&closed=false`);
     const markets = await response.json();
     
-    const processed = markets.slice(0, 10).map((m: any) => ({
-      id: m.condition_id || m.id,
-      title: m.question || 'Untitled',
-      category: extractCategory(m),
-      price: parseFloat(m.outcomePrices?.[0] || '0.5'),
-      volume: parseFloat(m.volume || '0'),
-      liquidity: parseFloat(m.liquidity || '0'),
-      priceChange24h: (Math.random() * 0.1 - 0.05),
-    }));
+    const processed = markets.slice(0, 10).map((m: any) => {
+      const outcomePricesStr = m.outcomePrices || '["0.5"]';
+      const prices = JSON.parse(outcomePricesStr).map((p: string) => parseFloat(p));
+      const tokenIdsStr = m.clobTokenIds || '[]';
+      const tokenIds = JSON.parse(tokenIdsStr);
+      
+      return {
+        id: m.condition_id || m.id,
+        title: m.question || 'Untitled',
+        category: extractCategory(m),
+        currentPrice: prices[0] || 0.5,
+        priceChange24h: (Math.random() * 0.1 - 0.05),
+        volume: parseFloat(m.volume || '0'),
+        liquidity: parseFloat(m.liquidity || '0'),
+        tokenIds,
+        prices,
+        active: m.active !== false,
+        endDate: m.end_date || new Date(Date.now() + 86400000 * 30).toISOString(),
+      };
+    });
     
     return res.status(200).json(processed);
   } catch (error: any) {
